@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex flex-column justify-content-center align-items-center" style="height: 80vh;">
+    <div class="container justify-content-center align-items-center">
+        {% with messages = get_flashed_messages(with_categories=false) %}
+        {% if messages %}
+            <div class="alert alert-warning alert-dismissable fade show" role="alert">
+                {{ messages[0] }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endif %}
+        {% endwith %}
+        <form method="post" action="/access/{{ password_id }}">
+            <div>
+                <div class="input-group">
+                    <input type="text" class="form-control" maxlength="64" placeholder="Enter the secret passphrase provided with this URL" name="passphrase" id="passphrase">
+                    <button type="submit" class="btn btn-primary" id="sendPassphrase">Go</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
