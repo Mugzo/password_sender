@@ -64,7 +64,12 @@ def preview(password_id):
         expire_days = data["expire_days"]
         expire_views = data["expire_views"]
         viewer_deletable = "can" if data["viewer_deletable"] else "cannot"
-        return render_template("preview.html", password_id=password_id, expire_days=expire_days, expire_views=expire_views, viewer_deletable=viewer_deletable)
+
+        print(request.environ)
+        # Return the origin of the request
+        origin = request.environ.get('HTTP_REFERER', 'default value')
+        print(origin)
+        return render_template("preview.html", password_id=password_id, expire_days=expire_days, expire_views=expire_views, viewer_deletable=viewer_deletable, origin=origin)
     return render_template('404.html'), 404
 
 
