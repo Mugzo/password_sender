@@ -2,8 +2,10 @@ from flask import Flask
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 
-# In production this needs to be an envrionment variable
-KVuri = f"https://dev-kv-passwordsender-0.vault.azure.net/"
+import os
+
+# Azure Keyvault endpoint
+KVuri = os.environ["AZURE_KEYVAULT_RESOURCEENDPOINT"]
 
 credential = DefaultAzureCredential()
 client = SecretClient(vault_url=KVuri, credential=credential)
