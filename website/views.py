@@ -34,8 +34,6 @@ def create():
         fernet = Fernet(encryptionKey)
         encrypted_password = fernet.encrypt(password.encode())
 
-        decrypted_password = fernet.decrypt(encrypted_password).decode()
-
         # Hash the passphrase
         if passphrase != '':
             passphrase_hash = hash_password(passphrase)
@@ -49,6 +47,8 @@ def create():
         # Create the password in the database
         new_password = Passwords(password_id=password_id, created_at=now, expire_days=expirationDays, expire_views=expirationViews, viewer_deletable=allowDeletion,  views=0, expire_on=expirationDate, passphrase_hash=passphrase_hash, password=encrypted_password)
         create_password(new_password)
+
+        session["passphrase"] = False
 
         return redirect(url_for('views.preview', password_id=password_id))
     return render_template('404.html'), 404
