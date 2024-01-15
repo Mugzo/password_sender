@@ -14,8 +14,8 @@ client = SecretClient(vault_url=KVuri, credential=credential)
 encryptionKey = client.get_secret("PasswordEncryptionKey").value
 
 # Get the SQL server and Database name
-sqlServerName = client.get_secret("sqlServerName").value
-sqlDbName = client.get_secret("sqlDbName").value
+sqlServerName = os.environ["AZURE_SQL_SERVER"]
+sqlDbName = os.environ["AZURE_SQL_DATABASE"]
 
 def create_app():
     app = Flask(__name__)
