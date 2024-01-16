@@ -60,6 +60,7 @@ module keyVault 'modules/keyvault.bicep' = {
     tags: tags
     workspaceID: logsWorkspace.outputs.workspaceID
     firstDeployment: firstDeployment
+    umiPrincipalID: umi.outputs.principalID
   }
 }
 
@@ -75,5 +76,22 @@ module sql 'modules/sql.bicep' = {
     tags: tags
     workspaceID: logsWorkspace.outputs.workspaceID
     firstDeployment: firstDeployment
+  }
+}
+
+module web 'modules/web.bicep' = {
+  scope: rg
+  name: 'web'
+  params: {
+    keyVaultResourceEndpoint: keyVault.outputs.keyVaultEndpoint
+    location: location
+    servicePlanName: '${prefix}-plan-${name}'
+    sqlDatabaseName: sql.outputs.sqlDatabaseName
+    sqlServerName: sql.outputs.sqlServerName
+    tags: tags
+    umiClientID: umi.outputs.clientID
+    webAppName: '${prefix}-web-${name}'
+    workspaceID: logsWorkspace.outputs.workspaceID
+    umiID: umi.outputs.umiID
   }
 }

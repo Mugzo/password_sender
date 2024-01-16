@@ -11,6 +11,9 @@ param workspaceID string
 
 param firstDeployment bool
 
+@description('The User Managed Identity Object (principal) ID.')
+param umiPrincipalID string
+
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: name
@@ -30,6 +33,20 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
     enableSoftDelete: true
     softDeleteRetentionInDays: 30
     publicNetworkAccess: 'enabled' 
+  }
+}
+
+@description('This is the built-in Key Vault Secrets User.')
+resource keyVaultSecretsUserRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-05-01-preview' existing = {
+  name: '4633458b-17de-408a-b874-0445c86b69e6'
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(keyVault.id, umiPrincipalID, keyVaultSecretsUserRoleDefinition.id)
+  properties: {
+    principalId: umiPrincipalID
+    roleDefinitionId: keyVaultSecretsUserRoleDefinition.id
+    principalType: 'ServicePrincipal'
   }
 }
 
@@ -103,3 +120,6 @@ resource kvDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview
     ]
   }
 }
+
+
+output keyVaultEndpoint string = keyVault.properties.vaultUri

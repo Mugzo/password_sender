@@ -35,7 +35,17 @@ resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
       tenantId: tenant().tenantId
     }
     minimalTlsVersion: '1.2'
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: 'Enabled'
+  }
+}
+
+// This is not recommanded in a production environment for security reasons. This allow ALL azure IPs.
+resource firewallRule 'Microsoft.Sql/servers/firewallRules@2023-05-01-preview' = {
+  parent: sqlServer
+  name: 'AllowAllAzureIPs'
+  properties: {
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '0.0.0.0'
   }
 }
 
@@ -121,3 +131,7 @@ resource dbDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview
     ]
   }
 }
+
+
+output sqlServerName string = sqlServer.name
+output sqlDatabaseName string = sqlDatabase.name
