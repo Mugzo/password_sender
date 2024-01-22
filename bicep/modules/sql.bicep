@@ -158,8 +158,7 @@ resource setupDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01' = if (
       }
     ]
     scriptContent: '''
-    cat /etc/os-release
-    apt-get install sqlcmd
+    apk add sqlcmd
     sqlcmd -S tcp:${sqlServerName} -d ${sqlDatabaseName} -i https://github.com/Mugzo/password_sender/blob/main/Passwords.sql -G
     '''
   }
