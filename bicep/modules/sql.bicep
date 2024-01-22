@@ -186,7 +186,7 @@ resource setupDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01' = if (
     sudo apk add --allow-untrusted msodbcsql18_18.3.2.1-1_$architecture.apk
     sudo apk add --allow-untrusted mssql-tools18_18.3.1.1-1_$architecture.apk
 
-    sudo ln -s /opt/mssql-tools/bin/* /usr/local/bin/
+    ln -sfn /opt/mssql-tools/bin/sqlcmd /usr/bin/sqlcmd
 
     sqlcmd -S tcp:${sqlServerName} -d ${sqlDatabaseName} -i https://github.com/Mugzo/password_sender/blob/main/Passwords.sql -G
     '''
