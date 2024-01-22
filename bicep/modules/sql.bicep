@@ -138,9 +138,9 @@ resource dbDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview
 resource setupDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01' = if (firstDeployment) {
   name: 'setupDatabase'
   location: location
-  kind: 'AzurePowerShell'
+  kind: 'AzureCLI'
   properties: {
-    azPowerShellVersion: '10.0'
+    azCliVersion: '2.52.0'
     cleanupPreference: 'Always'
     retentionInterval: 'PT1H'
     environmentVariables: [
@@ -158,8 +158,7 @@ resource setupDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01' = if (
       }
     ]
     scriptContent: '''
-    $test = systeminfo
-    echo $test
+    sqlcmd -S tcp:${sqlServerName} -d ${sqlDatabaseName} -i https://github.com/Mugzo/password_sender/blob/main/Passwords.sql -G
     '''
   }
 }
