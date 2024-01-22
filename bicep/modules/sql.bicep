@@ -158,8 +158,8 @@ resource setupDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01' = if (
       }
     ]
     scriptContent: '''
-    winget install sqlcmd
-    sqlcmd -S tcp:$Env:sqlServerName -d $Env:sqlDatabaseName -i https://github.com/Mugzo/password_sender/blob/main/Passwords.sql -G
+    $test = systeminfo
+    echo $test
     '''
   }
 }
