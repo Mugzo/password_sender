@@ -145,7 +145,7 @@ resource setupDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01' = if (
     retentionInterval: 'PT1H'
     environmentVariables: [
       {
-        name: 'identity-name'
+        name: 'identityName'
         value: umiName
       }
       {
