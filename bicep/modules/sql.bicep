@@ -18,6 +18,9 @@ param sqlServerAdminUPN string
 @description('The Object ID of the user that will be administrator of the SQL server.')
 param sqlServerAdminID string
 
+@description('The name of the User Managed Identity.')
+param umiName string 
+
 param firstDeployment bool
 
 
@@ -129,6 +132,34 @@ resource dbDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview
         category: 'WorkloadManagement'
       }
     ]
+  }
+}
+
+resource setupDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01' = if (firstDeployment) {
+  name: 'setupDatabase'
+  location: location
+  kind: 'AzurePowerShell'
+  properties: {
+    azPowerShellVersion: '10.0'
+    cleanupPreference: 'Always'
+    retentionInterval: 'PT1H'
+    environmentVariables: [
+      {
+        name: 'identity-name'
+        value: umiName
+      }
+      {
+        name: 'sqlServerName'
+        value: sqlServer.name
+      }
+      {
+        name: 'sqlDatabaseName'
+        value: sqlDatabase.name
+      }
+    ]
+    scriptContent: '''
+    sqlcmd -S tcp:$Env:sqlServerName -d $Env:sqlDatabaseName -i https://github.com/Mugzo/password_sender/blob/main/Passwords.sql -G
+    '''
   }
 }
 

@@ -46,7 +46,7 @@ module umi 'modules/umi.bicep' = {
   name: 'umi'
   params: {
     location: location
-    name: name
+    name: '${prefix}-umi-${name}'
     tags: tags
   }
 }
@@ -76,6 +76,7 @@ module sql 'modules/sql.bicep' = {
     tags: tags
     workspaceID: logsWorkspace.outputs.workspaceID
     firstDeployment: firstDeployment
+    umiName: umi.outputs.umiName
   }
 }
 

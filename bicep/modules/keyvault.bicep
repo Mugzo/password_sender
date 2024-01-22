@@ -58,12 +58,7 @@ resource generateEncryptionKey 'Microsoft.Resources/deploymentScripts@2023-08-01
     azPowerShellVersion: '10.0'
     cleanupPreference: 'Always'
     retentionInterval: 'PT1H'
-    environmentVariables: [
-      {
-        name: 'VaultName'
-        value: keyVault.name
-      }
-    ]
+  
     scriptContent: '''
       $key = [Convert]::ToBase64String((1..32|%{[byte](Get-Random -Max 256)}))
       $DeploymentScriptOutputs = @{}

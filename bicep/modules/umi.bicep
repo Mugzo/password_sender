@@ -16,3 +16,4 @@ resource umi 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-07-31-previe
 output clientID string = umi.properties.clientId
 output principalID string = umi.properties.principalId
 output umiID string = umi.id
+output umiName string = umi.name
