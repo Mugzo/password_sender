@@ -19,7 +19,9 @@ param sqlServerAdminUPN string
 param sqlServerAdminID string
 
 @description('The name of the User Managed Identity.')
-param umiName string 
+param umiName string
+
+param umiClientID string
 
 param firstDeployment bool
 
@@ -156,8 +158,16 @@ resource setupDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01' = if (
         name: 'sqlDatabaseName'
         value: sqlDatabase.name
       }
+      {
+        name: 'AZURE_CLIENT_ID'
+        value: umiClientID
+      }
     ]
     scriptContent: '''
+    apk --no-cache add curl
+    apk --no-cache add gnupg
+    apk --no-cache add sudo
+
     case $(uname -m) in
         x86_64)   architecture="amd64" ;;
         arm64)   architecture="arm64" ;;

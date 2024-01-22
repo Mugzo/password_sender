@@ -77,6 +77,7 @@ module sql 'modules/sql.bicep' = {
     workspaceID: logsWorkspace.outputs.workspaceID
     firstDeployment: firstDeployment
     umiName: umi.outputs.umiName
+    umiClientID: umi.outputs.clientID
   }
 }
 
