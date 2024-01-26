@@ -18,11 +18,14 @@ param tags object = {
 @description('Is it your first deployment (true/false)? If true, SQL Database Table and PasswordEncryptionKey will be created else not.')
 param firstDeployment bool
 
-@description('The UPN of the user that will be administrator of the SQL server.')
+@description('The UPN of the user that will be administrator of the SQL server. You need access to this user in order to create the Database Table.')
 param sqlServerAdminUPN string
 
-@description('The Object ID of the user that will be administrator of the SQL server.')
+@description('The Object ID of the user that will be administrator of the SQL server. You need access to this user in order to create the Database Table.')
 param sqlServerAdminID string
+
+@description('The .SQL file to create the table and user for the User Managed Identity.')
+param sqlDatabaseURI string = 'https://github.com/Mugzo/password_sender/blob/main/Passwords.sql'
 
 
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
@@ -69,15 +72,12 @@ module sql 'modules/sql.bicep' = {
   name: 'sql'
   params: {
     location: location
-    sqlDbName: '${prefix}-sqlsrv-${name}'
+    sqlDbName: '${prefix}-sqldb-${name}'
     sqlServerAdminID: sqlServerAdminID
     sqlServerAdminUPN: sqlServerAdminUPN
-    sqlServerName: '${prefix}-sqldb-${name}'
+    sqlServerName: '${prefix}-sqlsrv-${name}'
     tags: tags
     workspaceID: logsWorkspace.outputs.workspaceID
-    firstDeployment: firstDeployment
-    umiName: umi.outputs.umiName
-    umiClientID: umi.outputs.clientID
   }
 }
 
@@ -95,5 +95,21 @@ module web 'modules/web.bicep' = {
     webAppName: '${prefix}-web-${name}'
     workspaceID: logsWorkspace.outputs.workspaceID
     umiID: umi.outputs.umiID
+    umiPrincipalID: umi.outputs.principalID
+  }
+}
+
+module logicApp 'modules/logicapp.bicep' = {
+  scope: rg
+  name: 'logicApp'
+  params: {
+    location: location
+    logicAppName: '${prefix}-logicApp-${name}'
+    sqlConnectionName: '${prefix}-sqlConnection-${name}'
+    sqlDatabaseName: sql.outputs.sqlDatabaseName
+    sqlServerName: sql.outputs.sqlServerName
+    tags: tags
+    umiID: umi.outputs.umiID
+    workspaceID: logsWorkspace.outputs.workspaceID
   }
 }

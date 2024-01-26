@@ -12,18 +12,11 @@ param tags object
 @description('The Workspace ID to store logs')
 param workspaceID string
 
-@description('The UPN of the user that will be administrator of the SQL server.')
+@description('The UPN of the user that will be administrator of the SQL server. You need access to this user in order to create the Database Table.')
 param sqlServerAdminUPN string
 
-@description('The Object ID of the user that will be administrator of the SQL server.')
+@description('The Object ID of the user that will be administrator of the SQL server. You need access to this user in order to create the Database Table.')
 param sqlServerAdminID string
-
-@description('The name of the User Managed Identity.')
-param umiName string
-
-param umiClientID string
-
-param firstDeployment bool
 
 
 resource sqlServer 'Microsoft.Sql/servers@2023-05-01-preview' = {
@@ -137,62 +130,6 @@ resource dbDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview
   }
 }
 
-resource setupDatabase 'Microsoft.Resources/deploymentScripts@2023-08-01' = if (firstDeployment) {
-  name: 'setupDatabase'
-  location: location
-  kind: 'AzureCLI'
-  properties: {
-    azCliVersion: '2.52.0'
-    cleanupPreference: 'Always'
-    retentionInterval: 'PT1H'
-    environmentVariables: [
-      {
-        name: 'identityName'
-        value: umiName
-      }
-      {
-        name: 'sqlServerName'
-        value: sqlServer.name
-      }
-      {
-        name: 'sqlDatabaseName'
-        value: sqlDatabase.name
-      }
-      {
-        name: 'AZURE_CLIENT_ID'
-        value: umiClientID
-      }
-    ]
-    scriptContent: '''
-    apk --no-cache add curl
-    apk --no-cache add sudo
 
-    case $(uname -m) in
-        x86_64)   architecture="amd64" ;;
-        arm64)   architecture="arm64" ;;
-        *) architecture="unsupported" ;;
-    esac
-    if [[ "unsupported" == "$architecture" ]];
-    then
-        echo "Alpine architecture $(uname -m) is not currently supported.";
-        exit;
-    fi
-
-    #Download the desired package(s)
-    curl -O https://download.microsoft.com/download/3/5/5/355d7943-a338-41a7-858d-53b259ea33f5/msodbcsql18_18.3.2.1-1_$architecture.apk
-    curl -O https://download.microsoft.com/download/3/5/5/355d7943-a338-41a7-858d-53b259ea33f5/mssql-tools18_18.3.1.1-1_$architecture.apk
-
-    #Install the package(s)
-    sudo apk add --allow-untrusted msodbcsql18_18.3.2.1-1_$architecture.apk
-    sudo apk add --allow-untrusted mssql-tools18_18.3.1.1-1_$architecture.apk
-
-    ln -sfn /opt/mssql-tools/bin/sqlcmd /usr/bin/sqlcmd
-
-    sqlcmd -S tcp:${sqlServerName} -d ${sqlDatabaseName} -i https://github.com/Mugzo/password_sender/blob/main/Passwords.sql -G
-    '''
-  }
-}
-
-
-output sqlServerName string = sqlServer.name
+output sqlServerName string = sqlServer.properties.fullyQualifiedDomainName
 output sqlDatabaseName string = sqlDatabase.name

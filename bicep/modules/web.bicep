@@ -18,6 +18,9 @@ param umiClientID string
 @description('The User Managed Identity ID.')
 param umiID string
 
+@description('The User Managed Identity Object (principal) ID.')
+param umiPrincipalID string
+
 param keyVaultResourceEndpoint string
 
 param sqlServerName string
@@ -156,5 +159,19 @@ resource webDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previe
         category: 'AllMetrics'
       }
     ]
+  }
+}
+
+@description('This is the built-in Website Contributor role.')
+resource websiteContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-05-01-preview' existing = {
+  name: 'de139f84-1756-47ae-9be6-808fbbe84772'
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(webApp.id, umiPrincipalID, websiteContributorRoleDefinition.id)
+  properties: {
+    principalId: umiPrincipalID
+    roleDefinitionId: websiteContributorRoleDefinition.id
+    principalType: 'ServicePrincipal'
   }
 }
