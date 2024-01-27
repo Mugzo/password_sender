@@ -27,6 +27,12 @@ param sqlServerName string
 
 param sqlDatabaseName string
 
+@description('Deploy the code from the bicep deployment.')
+param deployCode bool 
+
+@description('The URI to download the Github repository.')
+param codeURI string = 'https://github.com/Mugzo/password_sender/archive/refs/heads/main.zip'
+
 
 resource servicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   name: servicePlanName
@@ -80,6 +86,10 @@ resource webApp 'Microsoft.Web/sites@2023-01-01' = {
         {
           name: 'AZURE_SQL_DATABASE'
           value: sqlDatabaseName
+        }
+        {
+          name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'
+          value: 'true'
         }
       ]
     }
@@ -173,5 +183,50 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
     principalId: umiPrincipalID
     roleDefinitionId: websiteContributorRoleDefinition.id
     principalType: 'ServicePrincipal'
+  }
+}
+
+resource pythonCodeDeployment 'Microsoft.Resources/deploymentScripts@2023-08-01' = if (deployCode) {
+  name: 'pythonCodeDeployment'
+  location: location
+  kind: 'AzurePowerShell'
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${umiID}': {}
+    }
+  }
+  properties: {
+    azPowerShellVersion: '11.2'
+    cleanupPreference: 'OnSuccess'
+    retentionInterval: 'PT1H'
+
+    environmentVariables: [
+      {
+        name: 'codeURI'
+        value: codeURI
+      }
+      {
+        name: 'resourceGroupName'
+        value: resourceGroup().name
+      }
+      {
+        name: 'webAppName'
+        value: webApp.name
+      }
+      {
+        name: 'AZURE_CLIENT_ID'
+        value: umiClientID
+      }
+    ]
+  
+    scriptContent: '''
+      Invoke-WebRequest -Uri $env:codeURI -OutFile ./code.zip
+      Expand-Archive ./code.zip
+      Compress-Archive -Path ./code/password_sender-main/* -DestinationPath ./app.zip
+      Connect-AzAccount -Identity
+      $app = Get-AzWebApp -ResourceGroupName $env:resourceGroupName -Name $env:webAppName
+      Publish-AzWebApp -WebApp $app -ArchivePath ./app.zip -Force
+    '''
   }
 }

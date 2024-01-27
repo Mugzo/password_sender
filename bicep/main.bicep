@@ -18,14 +18,14 @@ param tags object = {
 @description('Is it your first deployment (true/false)? If true, SQL Database Table and PasswordEncryptionKey will be created else not.')
 param firstDeployment bool
 
+@description('Deploy the code from the bicep deployment.')
+param deployCode bool = true
+
 @description('The UPN of the user that will be administrator of the SQL server. You need access to this user in order to create the Database Table.')
 param sqlServerAdminUPN string
 
 @description('The Object ID of the user that will be administrator of the SQL server. You need access to this user in order to create the Database Table.')
 param sqlServerAdminID string
-
-@description('The .SQL file to create the table and user for the User Managed Identity.')
-param sqlDatabaseURI string = 'https://github.com/Mugzo/password_sender/blob/main/Passwords.sql'
 
 
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
@@ -96,6 +96,7 @@ module web 'modules/web.bicep' = {
     workspaceID: logsWorkspace.outputs.workspaceID
     umiID: umi.outputs.umiID
     umiPrincipalID: umi.outputs.principalID
+    deployCode: deployCode
   }
 }
 
