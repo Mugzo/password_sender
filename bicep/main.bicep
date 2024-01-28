@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
 @description('The prefix for the resources name.')
-param prefix string = 'prod'
+param prefix string = take(uniqueString(subscription().subscriptionId), 4)
 
 @description('The name of the resource group for the PasswordSender application.')
 param name string = 'PasswordSender'
