@@ -13,9 +13,9 @@ CREATE TABLE [dbo].Passwords
 );
 
 -- This is using the default UMI name. Modify if not using defaults.
-CREATE USER [${identityName}] FROM EXTERNAL PROVIDER;
-ALTER ROLE db_datareader ADD MEMBER [${identityName}];
-ALTER ROLE db_datawriter ADD MEMBER [${identityName}];
-ALTER ROLE db_ddladmin ADD MEMBER [${identityName}];
+CREATE USER [$(identityName)] FROM EXTERNAL PROVIDER;
+ALTER ROLE db_datareader ADD MEMBER [$(identityName)];
+ALTER ROLE db_datawriter ADD MEMBER [$(identityName)];
+ALTER ROLE db_ddladmin ADD MEMBER [$(identityName)];
 
 GO
