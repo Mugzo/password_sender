@@ -197,7 +197,7 @@ resource pythonCodeDeployment 'Microsoft.Resources/deploymentScripts@2023-08-01'
     }
   }
   properties: {
-    azPowerShellVersion: '11.2'
+    azPowerShellVersion: '11.0'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'PT1H'
 

@@ -85,7 +85,7 @@ resource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {
         'Execute_a_SQL_query_(V2)': {
           inputs: {
             body: {
-              query: 'DELETE FROM Passwords WHERE expire_on < CONVERT(date,GETDATE())'
+              query: 'DELETE FROM Passwords WHERE expire_on < CONVERT(DATETIME2,GETDATE())'
             }
             host: {
               connection: {

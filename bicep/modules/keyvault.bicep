@@ -55,7 +55,7 @@ resource generateEncryptionKey 'Microsoft.Resources/deploymentScripts@2023-08-01
   location: location
   kind: 'AzurePowerShell'
   properties: {
-    azPowerShellVersion: '11.2'
+    azPowerShellVersion: '11.0'
     cleanupPreference: 'Always'
     retentionInterval: 'PT1H'
   
