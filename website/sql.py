@@ -5,6 +5,7 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import func
+from sqlalchemy import exc
 
 from . import sqlServerName, sqlDbName
 
@@ -52,14 +53,20 @@ class Passwords(Base):
     
 def create_password(new_password):
     session.add(new_password)
-    session.commit()
+    try:
+        session.commit()
+    except exc.PendingRollbackError:
+        session.rollback()
     return
 
 
 def delete_password(password_id):
     delete_query = delete(Passwords).where(Passwords.password_id == password_id)
     session.execute(delete_query)
-    session.commit()
+    try:
+        session.commit()
+    except exc.PendingRollbackError:
+        session.rollback()
     return
 
 
@@ -79,6 +86,9 @@ def get_password(password_id, route):
 def update_password(data):
     update_query = update(Passwords).where(Passwords.password_id == data.password_id).values({"views": data.views, "updated_at": data.updated_at})
     session.execute(update_query)
-    session.commit()
+    try:
+        session.commit()
+    except exc.PendingRollbackError:
+        session.rollback()
     return
     
