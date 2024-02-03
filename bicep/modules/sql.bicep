@@ -1,3 +1,5 @@
+// Used when using SQL as the database
+
 @description('The SQL server name.')
 param sqlServerName string
 

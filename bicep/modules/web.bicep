@@ -23,10 +23,6 @@ param umiPrincipalID string
 
 param keyVaultResourceEndpoint string
 
-param sqlServerName string
-
-param sqlDatabaseName string
-
 @description('Deploy the code from the bicep deployment.')
 param deployCode bool 
 
@@ -78,14 +74,6 @@ resource webApp 'Microsoft.Web/sites@2023-01-01' = {
         {
           name: 'AZURE_KEYVAULT_RESOURCEENDPOINT'
           value: keyVaultResourceEndpoint
-        }
-        {
-          name: 'AZURE_SQL_SERVER'
-          value: sqlServerName
-        }
-        {
-          name: 'AZURE_SQL_DATABASE'
-          value: sqlDatabaseName
         }
         {
           name: 'SCM_DO_BUILD_DURING_DEPLOYMENT'

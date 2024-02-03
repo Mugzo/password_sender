@@ -1,3 +1,5 @@
+// The logic app is used when using SQL as the database.
+
 @description('The logic app name.')
 param logicAppName string
 

@@ -14,6 +14,12 @@ param firstDeployment bool
 @description('The User Managed Identity Object (principal) ID.')
 param umiPrincipalID string
 
+@description('The MongoDB name')
+param mongodb_name string
+
+resource mongodb 'Microsoft.DocumentDB/databaseAccounts@2023-11-15' existing = {
+  name: mongodb_name
+}
 
 resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
   name: name
@@ -75,6 +81,13 @@ resource keySecret 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = if (firstDep
   }
 }
 
+resource mongodbConnectionString 'Microsoft.KeyVault/vaults/secrets@2023-07-01' = {
+  parent: keyVault
+  name: 'MongoDBConnectionString'
+  properties: {
+    value: mongodb.listConnectionStrings().connectionStrings[0].connectionString
+  }
+}
 
 resource kvDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   scope: keyVault

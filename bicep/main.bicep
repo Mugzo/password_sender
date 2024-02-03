@@ -15,17 +15,11 @@ param tags object = {
   Project: 'PasswordSender'
 }
 
-@description('Is it your first deployment (true/false)? If true, SQL Database Table and PasswordEncryptionKey will be created else not.')
+@description('Is it your first deployment (true/false)? If true, a new encryption key will be created.')
 param firstDeployment bool
 
 @description('Deploy the code from the bicep deployment.')
 param deployCode bool = true
-
-@description('The UPN of the user that will be administrator of the SQL server. You need access to this user in order to create the Database Table.')
-param sqlServerAdminUPN string
-
-@description('The Object ID of the user that will be administrator of the SQL server. You need access to this user in order to create the Database Table.')
-param sqlServerAdminID string
 
 
 resource rg 'Microsoft.Resources/resourceGroups@2023-07-01' = {
@@ -54,6 +48,17 @@ module umi 'modules/umi.bicep' = {
   }
 }
 
+module mongoDB 'modules/mongodb.bicep' = {
+  scope: rg
+  name: 'mongoDB'
+  params: {
+    location: location
+    name: '${prefix}-mongodb-${name}'
+    tags: tags
+    workspaceID: logsWorkspace.outputs.workspaceID
+  }
+}
+
 module keyVault 'modules/keyvault.bicep' = {
   scope: rg
   name: 'keyVault'
@@ -64,20 +69,7 @@ module keyVault 'modules/keyvault.bicep' = {
     workspaceID: logsWorkspace.outputs.workspaceID
     firstDeployment: firstDeployment
     umiPrincipalID: umi.outputs.principalID
-  }
-}
-
-module sql 'modules/sql.bicep' = {
-  scope: rg
-  name: 'sql'
-  params: {
-    location: location
-    sqlDbName: '${prefix}-sqldb-${name}'
-    sqlServerAdminID: sqlServerAdminID
-    sqlServerAdminUPN: sqlServerAdminUPN
-    sqlServerName: '${prefix}-sqlsrv-${name}'
-    tags: tags
-    workspaceID: logsWorkspace.outputs.workspaceID
+    mongodb_name: mongoDB.outputs.mongodb_name
   }
 }
 
@@ -88,8 +80,6 @@ module web 'modules/web.bicep' = {
     keyVaultResourceEndpoint: keyVault.outputs.keyVaultEndpoint
     location: location
     servicePlanName: '${prefix}-plan-${name}'
-    sqlDatabaseName: sql.outputs.sqlDatabaseName
-    sqlServerName: sql.outputs.sqlServerName
     tags: tags
     umiClientID: umi.outputs.clientID
     webAppName: '${prefix}-web-${name}'
@@ -97,20 +87,5 @@ module web 'modules/web.bicep' = {
     umiID: umi.outputs.umiID
     umiPrincipalID: umi.outputs.principalID
     deployCode: deployCode
-  }
-}
-
-module logicApp 'modules/logicapp.bicep' = {
-  scope: rg
-  name: 'logicApp'
-  params: {
-    location: location
-    logicAppName: '${prefix}-logicApp-${name}'
-    sqlConnectionName: '${prefix}-sqlConnection-${name}'
-    sqlDatabaseName: sql.outputs.sqlDatabaseName
-    sqlServerName: sql.outputs.sqlServerName
-    tags: tags
-    umiID: umi.outputs.umiID
-    workspaceID: logsWorkspace.outputs.workspaceID
   }
 }

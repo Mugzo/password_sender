@@ -4,3 +4,4 @@ azure-keyvault-secrets
 Flask
 SQLAlchemy
 pyodbc
+pymongo

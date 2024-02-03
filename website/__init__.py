@@ -14,8 +14,11 @@ client = SecretClient(vault_url=KVuri, credential=credential)
 encryptionKey = client.get_secret("PasswordEncryptionKey").value
 
 # Get the SQL server and Database name
-sqlServerName = os.environ["AZURE_SQL_SERVER"]
-sqlDbName = os.environ["AZURE_SQL_DATABASE"]
+# sqlServerName = os.environ["AZURE_SQL_SERVER"]
+# sqlDbName = os.environ["AZURE_SQL_DATABASE"]
+
+# Get the MongoDB name
+mongodb = client.get_secret("MongoDBConnectionString").value
 
 def create_app():
     app = Flask(__name__)
