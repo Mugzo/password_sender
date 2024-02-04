@@ -30,8 +30,28 @@ resource mongodb 'Microsoft.DocumentDB/databaseAccounts@2023-11-15' = {
       }
     }
     isVirtualNetworkFilterEnabled: false
+    networkAclBypass: 'AzureServices'
     virtualNetworkRules: []
-    ipRules: []
+    ipRules: [
+      {
+        ipAddressOrRange: '104.42.195.92'
+      }
+      {
+        ipAddressOrRange: '40.76.54.131'
+      }
+      {
+        ipAddressOrRange: '52.176.6.30'
+      }
+      {
+        ipAddressOrRange: '52.169.50.45'
+      }
+      {
+        ipAddressOrRange: '52.187.184.26'
+      }
+      {
+        ipAddressOrRange: '0.0.0.0'
+      }
+    ]
     minimalTlsVersion: 'Tls12'
     capabilities: [
       {

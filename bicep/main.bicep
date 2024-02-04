@@ -53,7 +53,7 @@ module mongoDB 'modules/mongodb.bicep' = {
   name: 'mongoDB'
   params: {
     location: location
-    name: '${prefix}-mongodb-${name}'
+    name: '${prefix}-mongodb-${toLower(name)}'
     tags: tags
     workspaceID: logsWorkspace.outputs.workspaceID
   }
@@ -87,5 +87,23 @@ module web 'modules/web.bicep' = {
     umiID: umi.outputs.umiID
     umiPrincipalID: umi.outputs.principalID
     deployCode: deployCode
+  }
+  dependsOn: [
+    functionApp
+  ]
+}
+
+module functionApp 'modules/functionapp.bicep' = {
+  scope: rg
+  name: 'functionApp'
+  params: {
+    funcName: '${prefix}-functionapp-${toLower(name)}'
+    hostingPlanName: '${prefix}-funcplan-${name}'
+    keyVaultResourceEndpoint: keyVault.outputs.keyVaultEndpoint
+    location: location
+    tags: tags
+    umiClientID: umi.outputs.clientID
+    umiID: umi.outputs.umiID
+    workspaceID: logsWorkspace.outputs.workspaceID
   }
 }

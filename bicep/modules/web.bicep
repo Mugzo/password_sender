@@ -35,14 +35,14 @@ resource servicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   location: location
   tags: tags
   sku: {
-    name: 'F1'
-    tier: 'Free'
+    name: 'B1'
+    tier: 'Basic'
   }
   kind: 'linux'
   properties: {
     reserved: true
     targetWorkerSizeId: 0
-    targetWorkerCount: 0
+    targetWorkerCount: 1
   }
 }
 
@@ -218,3 +218,5 @@ resource pythonCodeDeployment 'Microsoft.Resources/deploymentScripts@2023-08-01'
     '''
   }
 }
+
+output hostingPlanName string = servicePlan.name

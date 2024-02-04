@@ -1,5 +1,6 @@
 azure-core
 azure-identity
+azure-functions
 azure-keyvault-secrets
 Flask
 SQLAlchemy
