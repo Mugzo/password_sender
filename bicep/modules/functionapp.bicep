@@ -3,6 +3,12 @@
 @description('The function app name.')
 param funcName string
 
+@description('The hosting plan name.')
+param hostingPlanName string
+
+@description('The storage account name.')
+param storageName string
+
 @description('The function app location.')
 param location string
 
@@ -10,9 +16,6 @@ param tags object
 
 @description('The Workspace ID to store logs')
 param workspaceID string
-
-@description('The hosting plan name.')
-param hostingPlanName string
 
 @description('The User Managed Identity Client ID')
 param umiClientID string
@@ -25,6 +28,49 @@ param keyVaultResourceEndpoint string
 @description('The URI to download the Github repository.')
 param codeURI string = 'https://github.com/Mugzo/password_sender/archive/refs/heads/main.zip'
 
+resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
+  name: storageName
+  location: location
+  tags: tags
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+  properties: {
+    minimumTlsVersion: 'TLS1_2'
+    supportsHttpsTrafficOnly: true
+    allowBlobPublicAccess: false
+    allowSharedKeyAccess: true
+    defaultToOAuthAuthentication: false
+    accessTier: 'Hot'
+    publicNetworkAccess: 'Enabled'
+    allowCrossTenantReplication: false
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Allow'
+      ipRules: []
+    }
+    dnsEndpointType: 'Standard'
+    encryption: {
+      keySource: 'Microsoft.Storage'
+      services: {
+        blob: {
+          enabled: true
+        }
+        file: {
+           enabled: true
+        }
+        table: {
+          enabled: true
+        }
+        queue: {
+          enabled: true
+        }
+      }
+      requireInfrastructureEncryption: false
+    }
+  }
+}
 
 resource hostingPlan 'Microsoft.Web/serverfarms@2022-09-01' = {
   name: hostingPlanName
@@ -80,6 +126,10 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
           name: 'AZURE_KEYVAULT_RESOURCEENDPOINT'
           value: keyVaultResourceEndpoint
         }
+        {
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net'
+        }
       ]
       use32BitWorkerProcess: false
       ftpsState: 'FtpsOnly'
@@ -87,16 +137,16 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
     }
     clientAffinityEnabled: false
     virtualNetworkSubnetId: null
-    publicNetworkAccess: 'Disabled'
+    publicNetworkAccess: 'Enabled'
     httpsOnly: true
     serverFarmId: hostingPlan.id
   }
 }
 
 resource pythonCodeDeployment 'Microsoft.Resources/deploymentScripts@2023-08-01' = {
-  name: 'pythonCodeDeployment'
+  name: 'functionCodeDeployment'
   location: location
-  kind: 'AzurePowerShell'
+  kind: 'AzureCLI'
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
@@ -104,7 +154,7 @@ resource pythonCodeDeployment 'Microsoft.Resources/deploymentScripts@2023-08-01'
     }
   }
   properties: {
-    azPowerShellVersion: '11.0'
+    azCliVersion: '2.9.2'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'PT1H'
 
@@ -118,7 +168,7 @@ resource pythonCodeDeployment 'Microsoft.Resources/deploymentScripts@2023-08-01'
         value: resourceGroup().name
       }
       {
-        name: 'webAppName'
+        name: 'functionAppName'
         value: functionApp.name
       }
       {
@@ -128,12 +178,11 @@ resource pythonCodeDeployment 'Microsoft.Resources/deploymentScripts@2023-08-01'
     ]
   
     scriptContent: '''
-      Invoke-WebRequest -Uri $env:codeURI -OutFile ./code.zip
-      Expand-Archive ./code.zip
-      Compress-Archive -Path ./code/password_sender-main/functionapp/* -DestinationPath ./function.zip
-      Connect-AzAccount -Identity
-      $app = Get-AzWebApp -ResourceGroupName $env:resourceGroupName -Name $env:webAppName
-      Publish-AzWebApp -WebApp $app -ArchivePath ./function.zip -Force
+      curl -L $codeURI -o ./code.zip
+      unzip ./code.zip -d ./code
+      zip -r -j ./function.zip ./code/password_sender-main/functionapp/
+      az login --identity
+      az functionapp deployment source config-zip -g $resourceGroupName -n $functionAppName --src ./function.zip --build-remote
     '''
   }
 }

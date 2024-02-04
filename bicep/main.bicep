@@ -99,6 +99,7 @@ module functionApp 'modules/functionapp.bicep' = {
   params: {
     funcName: '${prefix}-functionapp-${toLower(name)}'
     hostingPlanName: '${prefix}-funcplan-${name}'
+    storageName: '${prefix}str${toLower(name)}'
     keyVaultResourceEndpoint: keyVault.outputs.keyVaultEndpoint
     location: location
     tags: tags
