@@ -33,7 +33,8 @@ module logsWorkspace 'modules/logs.bicep' = {
   name: 'logsWorkspace'
   params: {
     location: location
-    name: '${prefix}-logs-${name}'
+    logsName: '${prefix}-logs-${name}'
+    appInsightName: '${prefix}-insight-${name}'
     tags: tags
   }
 }
@@ -106,5 +107,6 @@ module functionApp 'modules/functionapp.bicep' = {
     umiClientID: umi.outputs.clientID
     umiID: umi.outputs.umiID
     workspaceID: logsWorkspace.outputs.workspaceID
+    appInsightName: logsWorkspace.outputs.appInsightName
   }
 }

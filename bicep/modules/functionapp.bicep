@@ -28,6 +28,13 @@ param keyVaultResourceEndpoint string
 @description('The URI to download the Github repository.')
 param codeURI string = 'https://github.com/Mugzo/password_sender/archive/refs/heads/main.zip'
 
+param appInsightName string
+
+
+resource appInsights 'Microsoft.Insights/components@2020-02-02' existing = {
+  name: appInsightName
+}
+
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-01-01' = {
   name: storageName
   location: location
@@ -130,6 +137,14 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
           name: 'AzureWebJobsStorage'
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=core.windows.net'
         }
+        {
+          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
+          value: appInsights.properties.InstrumentationKey
+        }
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: appInsights.properties.ConnectionString
+        }
       ]
       use32BitWorkerProcess: false
       ftpsState: 'FtpsOnly'
@@ -182,7 +197,7 @@ resource pythonCodeDeployment 'Microsoft.Resources/deploymentScripts@2023-08-01'
       unzip ./code.zip -d ./code
       zip -r -j ./function.zip ./code/password_sender-main/functionapp/
       az login --identity
-      az functionapp deployment source config-zip -g $resourceGroupName -n $functionAppName --src ./function.zip
+      az functionapp deployment source config-zip -g $resourceGroupName -n $functionAppName --src ./function.zip --build-remote true
     '''
   }
 }
