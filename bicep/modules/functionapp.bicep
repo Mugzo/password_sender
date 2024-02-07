@@ -154,7 +154,7 @@ resource pythonCodeDeployment 'Microsoft.Resources/deploymentScripts@2023-08-01'
     }
   }
   properties: {
-    azCliVersion: '2.9.2'
+    azCliVersion: '2.9.1'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'PT1H'
 
@@ -182,7 +182,7 @@ resource pythonCodeDeployment 'Microsoft.Resources/deploymentScripts@2023-08-01'
       unzip ./code.zip -d ./code
       zip -r -j ./function.zip ./code/password_sender-main/functionapp/
       az login --identity
-      az functionapp deployment source config-zip -g $resourceGroupName -n $functionAppName --src ./function.zip --build-remote
+      az functionapp deployment source config-zip -g $resourceGroupName -n $functionAppName --src ./function.zip
     '''
   }
 }
