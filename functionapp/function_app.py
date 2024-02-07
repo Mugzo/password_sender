@@ -12,30 +12,28 @@ app = func.FunctionApp()
 @app.schedule(schedule="0 */1 * * * *", arg_name="myTimer", run_on_startup=False,
               use_monitor=False) 
 def DeleteExpiredPasswords(myTimer: func.TimerRequest) -> None:
-    logging.info(myTimer.past_due)
     if myTimer.past_due:
-        logging.info("Timer past due")
-        # Azure Keyvault endpoint
-        KVuri = os.environ["AZURE_KEYVAULT_RESOURCEENDPOINT"]
+        logging.info("The timer is past due!")
 
-        credential = DefaultAzureCredential()
-        client = SecretClient(vault_url=KVuri, credential=credential)
+    # Azure Keyvault endpoint
+    KVuri = os.environ["AZURE_KEYVAULT_RESOURCEENDPOINT"]
 
-        # Get the MongoDB name
-        mongodb = client.get_secret("MongoDBConnectionString").value
+    credential = DefaultAzureCredential()
+    client = SecretClient(vault_url=KVuri, credential=credential)
 
-        client = pymongo.MongoClient(mongodb)
+    # Get the MongoDB name
+    mongodb = client.get_secret("MongoDBConnectionString").value
 
-        DB_NAME = "PasswordSender"
-        COLLECTION_NAME = "Passwords"
+    client = pymongo.MongoClient(mongodb)
 
-        db = client[DB_NAME]
-        collection = db[COLLECTION_NAME]
+    DB_NAME = "PasswordSender"
+    COLLECTION_NAME = "Passwords"
 
-        now = datetime.now()
+    db = client[DB_NAME]
+    collection = db[COLLECTION_NAME]
 
-        query = {"expire_on": {"$lt": now}}
-        data = collection.delete_many(query)
-        logging.info("Expired passwords have been deleted.")
+    now = datetime.now()
 
-    logging.info('Python timer trigger function executed.')
+    query = {"expire_on": {"$lt": now}}
+    data = collection.delete_many(query)
+    logging.info("Expired passwords have been deleted.")
