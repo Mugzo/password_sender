@@ -12,6 +12,7 @@ app = func.FunctionApp()
 @app.schedule(schedule="0 */1 * * * *", arg_name="myTimer", run_on_startup=False,
               use_monitor=False) 
 def DeleteExpiredPasswords(myTimer: func.TimerRequest) -> None:
+    logging.info(myTimer.past_due)
     if myTimer.past_due:
         logging.info("Timer past due")
         # Azure Keyvault endpoint
