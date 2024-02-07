@@ -13,6 +13,7 @@ app = func.FunctionApp()
               use_monitor=False) 
 def DeleteExpiredPasswords(myTimer: func.TimerRequest) -> None:
     if myTimer.past_due:
+        logging.info("Timer past due")
         # Azure Keyvault endpoint
         KVuri = os.environ["AZURE_KEYVAULT_RESOURCEENDPOINT"]
 
@@ -34,6 +35,6 @@ def DeleteExpiredPasswords(myTimer: func.TimerRequest) -> None:
 
         query = {"expire_on": {"$lt": now}}
         data = collection.delete_many(query)
-        logging.info(data)
+        logging.info("Expired passwords have been deleted.")
 
     logging.info('Python timer trigger function executed.')
