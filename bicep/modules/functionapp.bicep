@@ -14,14 +14,14 @@ param location string
 
 param tags object
 
-@description('The Workspace ID to store logs')
-param workspaceID string
-
 @description('The User Managed Identity Client ID')
 param umiClientID string
 
 @description('The User Managed Identity ID.')
 param umiID string
+
+@description('The User Managed Identity Object (principal) ID.')
+param umiPrincipalID string
 
 param keyVaultResourceEndpoint string
 
@@ -155,6 +155,20 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
     publicNetworkAccess: 'Enabled'
     httpsOnly: true
     serverFarmId: hostingPlan.id
+  }
+}
+
+@description('This is the built-in Website Contributor role.')
+resource websiteContributorRoleDefinition 'Microsoft.Authorization/roleDefinitions@2022-05-01-preview' existing = {
+  name: 'de139f84-1756-47ae-9be6-808fbbe84772'
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(functionApp.id, umiPrincipalID, websiteContributorRoleDefinition.id)
+  properties: {
+    principalId: umiPrincipalID
+    roleDefinitionId: websiteContributorRoleDefinition.id
+    principalType: 'ServicePrincipal'
   }
 }
 

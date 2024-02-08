@@ -86,7 +86,6 @@ module web 'modules/web.bicep' = {
     webAppName: '${prefix}-web-${name}'
     workspaceID: logsWorkspace.outputs.workspaceID
     umiID: umi.outputs.umiID
-    umiPrincipalID: umi.outputs.principalID
     deployCode: deployCode
   }
   dependsOn: [
@@ -106,7 +105,7 @@ module functionApp 'modules/functionapp.bicep' = {
     tags: tags
     umiClientID: umi.outputs.clientID
     umiID: umi.outputs.umiID
-    workspaceID: logsWorkspace.outputs.workspaceID
     appInsightName: logsWorkspace.outputs.appInsightName
+    umiPrincipalID: umi.outputs.principalID
   }
 }
