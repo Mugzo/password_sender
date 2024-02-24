@@ -24,7 +24,7 @@ param keyVaultResourceEndpoint string
 param deployCode bool 
 
 @description('The URI to download the Github repository.')
-param codeURI string = 'https://github.com/Mugzo/password_sender/archive/refs/heads/main.zip'
+param codeURI string = 'https://github.com/sam-lapointe/password_sender/archive/refs/heads/main.zip'
 
 
 resource servicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {

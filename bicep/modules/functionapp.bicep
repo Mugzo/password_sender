@@ -26,7 +26,7 @@ param umiPrincipalID string
 param keyVaultResourceEndpoint string
 
 @description('The URI to download the Github repository.')
-param codeURI string = 'https://github.com/Mugzo/password_sender/archive/refs/heads/main.zip'
+param codeURI string = 'https://github.com/sam-lapointe/password_sender/archive/refs/heads/main.zip'
 
 param appInsightName string
 
