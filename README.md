@@ -51,7 +51,7 @@ This project provided a hands-on learning opportunity that not only solidified m
         az deployment sub create --location <location> --template-file <path-to-repo/bicep/main.bicep>
         ```
 
-3. After the deployment is finished, navigate to the Web App where you'll discover the Default domain.
+3. After the deployment is finished, navigate to the Web App where you'll discover the Default domain. The initial visit may take a few minutes for the application to deploy. Subsequent visits should load the website correctly.
 
 ## Note
 
