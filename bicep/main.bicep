@@ -16,7 +16,7 @@ param tags object = {
 }
 
 @description('Is it your first deployment (true/false)? If true, a new encryption key will be created.')
-param firstDeployment bool
+param firstDeployment bool = true
 
 @description('Deploy the code from the bicep deployment.')
 param deployCode bool = true
