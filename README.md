@@ -8,9 +8,9 @@ https://pwd.slapointe.com
 
 ## About the Project
 
-Password Sender is a simplified version of [Password Pusher](https://pwpush.com/), the frontend design and application functionnalities were heavily inspired from Password Pusher.
+Password Sender is a simplified version of [Password Pusher](https://pwpush.com/), the frontend design and application functionnalities were taken from Password Pusher.
 
-The code has been written by myself, it's not a mere replication or copy-paste of Password Pusher's code.
+However, the code has been written by myself, it's not a mere replication or copy-paste of Password Pusher's code.
 
 ## Learning Journey
 
